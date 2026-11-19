@@ -134,7 +134,9 @@
   @media print{ .actionbar,.busy{ display:none !important; } body{ background:#fff; } }
 
   /* ---------- celular / tablet (só na tela, nunca na geração do PDF) ---------- */
-  @media screen and (max-width:1300px){
+  /* computador/tablet: mesmo layout do PDF, só reduzido para caber na tela */
+  @media screen and (min-width:861px){ body:not(.capture) .page{ zoom:var(--z,1); } }
+  @media screen and (max-width:860px){
     body:not(.capture){ padding:0 0 90px; font-size:15px; }
     body:not(.capture) .page{ width:auto; height:auto; overflow:visible; margin:0 0 10px; box-shadow:none; }
     body:not(.capture) .left, body:not(.capture) .right, body:not(.capture) .full,
@@ -560,6 +562,14 @@ const LOGO_SRC = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjMAAAIzCAYAAAD1
   img.src = LOGO_SRC;
 })();
 
+/* ---------- ajusta o tamanho da página à tela do computador ---------- */
+function fit(){
+  const w = document.documentElement.clientWidth;
+  const z = (w > 860 && w < 1330) ? Math.max(.6, (w - 40) / 1280) : 1;
+  document.documentElement.style.setProperty('--z', z);
+}
+fit(); window.addEventListener('resize', fit);
+
 /* ---------- monta os campos ---------- */
 document.querySelectorAll('.ta').forEach(ta => {
   const n = +ta.dataset.rows || 1;
@@ -590,7 +600,7 @@ document.querySelectorAll('.opt').forEach(o => o.addEventListener('click', () =>
   o.classList.toggle('on'); save();
 }));
 const hoje = new Date().toLocaleDateString('pt-BR');
-document.getElementById('dataHoje').value = hoje;
+if (!/branco/.test(location.search)) document.getElementById('dataHoje').value = hoje;
 const nome = document.getElementById('f-nome');
 const syncNome = () => document.querySelectorAll('[data-sync="nome"]').forEach(i => i.value = nome.value);
 nome.addEventListener('input', syncNome);
